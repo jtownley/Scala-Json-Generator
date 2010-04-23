@@ -1,6 +1,6 @@
-package com.point2
+package com.pyruby
 
-import com.point2.JsonGenerator._
+import com.pyruby.JsonGenerator._
 import org.junit.Assert._
 import org.junit.Test
 import java.util.Calendar

@@ -1,0 +1,41 @@
+Copyright 2010 - Chris Tarttelin & James Townley
+Release under Apache-BSD style License
+
+Version: 0.1
+
+----------------------------------
+Description
+----------------------------------
+A lightweight tool for templating Json in Scala
+
+
+----------------------------------
+Usage
+----------------------------------
+
+Best explained by example and by looking at tests.
+
+Example:
+
+val obj = jsonObject() {
+      field("Store", Some("Bob's Fromagery"))
+      jsonObject("Address") {
+        field("Suite", Some("1"))
+        field("Number", Some("21b"))
+        field("Name", Some("Baker Street"))
+      }
+      jsonArray("Cheeses") {
+        value(Some("Munster"))
+        value(Some("Brie"))
+        value(Some("Cheddar"))
+      }
+    }
+    
+println(obj.asString)
+
+
+Result:
+
+{"Store":"Bob's Fromagery","Address":{"Suite":"1","Number":"21b","Name":"Baker Street"},"Cheeses":["Munster","Brie","Cheddar"]}
+
+

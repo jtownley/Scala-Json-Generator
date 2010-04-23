@@ -1,4 +1,5 @@
-package com.point2
+package com.pyruby
+
 import collection.jcl.ArrayList
 import java.util.Date
 import java.text.SimpleDateFormat
@@ -70,40 +71,3 @@ case class Gen(name: Option[String], prefix: String, suffix: String) {
     }
   }
 }
-
-
-//object Listing {
-//  import JsonGenerator._
-//
-//  def asJson = {
-//    jsonObject {
-//      field("id", Some("123"))
-//      jsonObject("Address") {
-//        field("street", Some("Eastview"))
-//        field("town", Some("Saskatoon"))
-//        field("country", Some("Canada"))
-//        jsonObject("Style") {
-//          field("cheese", Some("Lovely"))
-//        }
-//      }
-//      jsonArray("numbers") {
-//        value(Some("1"))
-//        if ("so What" == "no way") {
-//          value(Some("2"))
-//        }
-//        value(None)
-//        value(Some("3"))
-//      }
-//      jsonObject("names") {
-//        field("first", None)
-//        //field("last", Some("Tarttie"))
-//        field("last", None)
-//      }
-//    }
-//    jsonString
-//  }
-//
-//  def main(args: Array[String]) = {
-//    println(asJson)
-//  }
-//}

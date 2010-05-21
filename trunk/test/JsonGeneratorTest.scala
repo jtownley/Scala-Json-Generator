@@ -9,7 +9,7 @@ import java.util.Calendar
 Copyright 2010 - Chris Tarttelin & James Townley
 Release under Apache-BSD style License
 
-Version: 0.1
+Version: 0.2
 */
 
 class JsonGeneratorTest {
@@ -156,7 +156,7 @@ class JsonGeneratorTest {
     }
     assertEquals("""{"label":31.468765,"label2":42}""", obj.asString)
   }
- 
+
   @Test
   def jsonObject_ShouldHandleDates {
     val c = Calendar.getInstance()
@@ -171,7 +171,7 @@ class JsonGeneratorTest {
   @Test
   def jsonObject_ShouldDefaultToToStringForUnknownTypes {
     class Foo {
-      override def toString = "Cambazola \" is \" lovely"
+      override def toString = """Cambazola " is " lovely"""
     }
     val obj = jsonObject() {
       field("label", Some(new Foo))
@@ -179,4 +179,11 @@ class JsonGeneratorTest {
     assertEquals("""{"label":"Cambazola \" is \" lovely"}""", obj.asString)
   }
 
+  @Test
+  def jsonObject_ShouldEscapeBackslash {
+      val obj = jsonObject() {
+      field("label", Some("""Cambazola \ Lovely"""))
+    }
+    assertEquals("""{"label":"Cambazola \\ Lovely"}""", obj.asString)
+  }
 }

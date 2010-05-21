@@ -8,7 +8,7 @@ import java.text.SimpleDateFormat
 Copyright 2010 - Chris Tarttelin & James Townley
 Release under Apache-BSD style License
 
-Version: 0.1
+Version: 0.2
 */
 
 object JsonGenerator {
@@ -29,12 +29,12 @@ object JsonGenerator {
       val content = if (label.isDefined) "\"" + label.get + "\":" else ""
       val container = self.get
       val data = value.get match {
-        case v : String => "\"" + v.replaceAll("\"","\\\\\"") + "\""
+        case v : String => "\"" + v.replaceAll("\\\\", "\\\\\\\\").replaceAll("\\\"","\\\\\"") + "\""
         case v : Int => v.toString
         case v : Double => v.toString
         case v : Boolean => v.toString
         case v : Date => "\"" + new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(v)+ "\""
-        case v : Any => "\"" + v.toString.replaceAll("\"","\\\\\"") + "\""
+        case v : Any => "\"" + v.toString.replaceAll("\\\\", "\\\\\\\\").replaceAll("\\\"","\\\\\"") + "\""
       }
       container.details.add(content + data)
     } else {

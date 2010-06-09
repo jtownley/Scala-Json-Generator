@@ -32,6 +32,7 @@ object JsonGenerator {
         case v : String => "\"" + v.replaceAll("\\\\", "\\\\\\\\").replaceAll("\\\"","\\\\\"") + "\""
         case v : Int => v.toString
         case v : Double => v.toString
+        case v : Long => v.toString
         case v : Boolean => v.toString
         case v : Date => "\"" + new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(v)+ "\""
         case v : Any => "\"" + v.toString.replaceAll("\\\\", "\\\\\\\\").replaceAll("\\\"","\\\\\"") + "\""

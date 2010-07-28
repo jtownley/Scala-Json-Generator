@@ -1,8 +1,8 @@
 package com.pyruby
 
-import collection.jcl.ArrayList
-import java.util.Date
+import scala.collection.JavaConversions._
 import java.text.SimpleDateFormat
+import java.util.{ArrayList, Date}
 
 /*
 Copyright 2010 - Chris Tarttelin & James Townley

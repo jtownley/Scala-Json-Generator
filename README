@@ -38,4 +38,8 @@ Result:
 
 {"Store":"Bob's Fromagery","Address":{"Suite":"1","Number":"21b","Name":"Baker Street"},"Cheeses":["Munster","Brie","Cheddar"]}
 
+Changes:
 
+Version 0.3 -
+
+Now runs with Scala 2.8

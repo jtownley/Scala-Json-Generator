@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="scala-json-generator" default="deploy" basedir=".">
+
+
+    <property name="output.dir" value="out/production"/>
+    <property name="testoutput.dir" value="out/test"/>
+    <property name="testresult.dir" value="out/testresult"/>
+    <property name="deploy.dir" value="out/deploy"/>
+    <property name="src" value="src/main"/>
+    <property name="src.test" value="src/test"/>
+    <property name="lib" value="lib"/>
+
+    <path id="library.junit.classpath">
+        <pathelement location="${basedir}/lib/junit-4.7.jar"/>
+    </path>
+
+    <path id="library.lib.classpath">
+        <pathelement location="${basedir}/lib/scala-compiler.jar"/>
+        <pathelement location="${basedir}/lib/scala-library.jar"/>
+    </path>
+
+    <taskdef name="scalac" classname="scala.tools.ant.Scalac" classpathref="library.lib.classpath"/>
+
+    <path id="test.classpath">
+        <path refid="library.junit.classpath"/>
+        <path refid="library.lib.classpath"/>
+    </path>
+
+    <path id="runtime.classpath">
+        <pathelement location="${output.dir}"/>
+        <pathelement location="${testoutput.dir}"/>
+        <path refid="library.junit.classpath"/>
+        <path refid="library.lib.classpath"/>
+    </path>
+
+    <target name="compile" depends="clean" description="Compile scala-json-generator; production classes">
+        <mkdir dir="${output.dir}"/>
+        <scalac destdir="${output.dir}">
+            <src path="${src}"/>
+            <classpath refid="library.lib.classpath"/>
+        </scalac>
+    </target>
+
+    <target name="compile.tests" depends="compile" description="compile scala-json-generator; test classes"
+            unless="skip.tests">
+        <mkdir dir="${testoutput.dir}"/>
+        <mkdir dir="${testresult.dir}"/>
+        <scalac destdir="${testoutput.dir}">
+            <src path="${src.test}"/>
+            <classpath>
+                <path refid="test.classpath"/>
+                <pathelement location="${output.dir}"/>
+            </classpath>
+        </scalac>
+    </target>
+
+    <target name="test" depends="compile.tests" description="Actually Runs the junit Tests">
+        <junit printsummary="on"
+               fork="false"
+               haltonfailure="false"
+               failureproperty="tests.failed"
+               showoutput="true">
+
+            <classpath refid="runtime.classpath"/>
+            <formatter type="xml"/>
+
+            <batchtest todir="${testresult.dir}">
+                <fileset dir="${testoutput.dir}">
+                    <include name="**/*Test.class"/>
+                </fileset>
+            </batchtest>
+        </junit>
+
+        <fail if="tests.failed">
+            *******************************************************
+            *******************************************************
+            One or more tests failed. Check the output...
+            *******************************************************
+            *******************************************************
+        </fail>
+    </target>
+
+    <target name="deploy" depends="test">
+        <jar basedir="${output.dir}" destfile="scala-json-generator.jar" includes="**/*.class"/>
+    </target>
+
+    <target name="clean" description="cleanup module">
+        <delete dir="${output.dir}"/>
+        <delete dir="${testoutput.dir}"/>
+    </target>
+
+</project>

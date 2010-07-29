@@ -1,8 +1,7 @@
 package com.pyruby
 
-import scala.collection.JavaConversions._
 import java.text.SimpleDateFormat
-import java.util.{ArrayList, Date}
+import java.util.Date
 
 /*
 Copyright 2010 - Chris Tarttelin & James Townley
@@ -12,7 +11,7 @@ Version: 0.2
 */
 
 object JsonGenerator {
-  private var self: Option[Gen] = None
+  private val self: ThreadLocal[Gen] = new ThreadLocal[Gen]
 
   def jsonObject(name: String)(f: => Unit) = json(Some(name), "{", "}", f)
   def jsonObject()(f: => Unit) = json(None, "{", "}", f)
@@ -25,7 +24,7 @@ object JsonGenerator {
   private def content(label: Option[String], value: Option[Any]) = {
     if (value.isEmpty) {
       // do nothing
-    } else if (self.isDefined) {
+    } else if (self.get != null) {
       val content = if (label.isDefined) "\"" + label.get + "\":" else ""
       val container = self.get
       val data = value.get match {
@@ -37,7 +36,7 @@ object JsonGenerator {
         case v : Date => "\"" + new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(v)+ "\""
         case v : Any => "\"" + v.toString.replaceAll("\\\\", "\\\\\\\\").replaceAll("\\\"","\\\\\"") + "\""
       }
-      container.details.add(content + data)
+      container.details = container.details ::: List(content + data)
     } else {
       throw new RuntimeException("Cannot have a value outside of a containing object")
     }
@@ -45,24 +44,24 @@ object JsonGenerator {
   }
 
   private def json(name: Option[String], prefix: String, suffix: String, f: => Unit) = {
-    val prior = self
-    self = Some(Gen(name, prefix, suffix))
-    if (prior.isDefined) {
-      prior.get.gens.add(self.get)
+    val prior = self.get
+    self.set(Gen(name, prefix, suffix))
+    if (prior != null) {
+      prior.gens = prior.gens ::: List(self.get)
     }
     f
-    val reply = self
-    self = prior
-    reply.get
+    val reply = self.get
+    self.set(prior)
+    reply
   }
 }
 
 case class Gen(name: Option[String], prefix: String, suffix: String) {
-  val details = new ArrayList[String]()
-  val gens = new ArrayList[Gen]()
+  var details = List[String]()
+  var gens = List[Gen]()
 
   def asString: String = {
-    details.addAll(gens.map(_.asString).filter(_ != null))
+    details = details ::: (gens.map(_.asString).filter(_ != null))
     if (details.isEmpty) {
       null
     } else if (name.isDefined) {

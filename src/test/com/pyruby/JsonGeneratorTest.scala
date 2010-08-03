@@ -181,9 +181,34 @@ class JsonGeneratorTest {
 
   @Test
   def jsonObject_ShouldEscapeBackslash {
-      val obj = jsonObject() {
-      field("label", Some("""Cambazola \ Lovely"""))
+    val obj = jsonObject() {
+      field("label", Some("""Grueyer \ Funky"""))
     }
-    assertEquals("""{"label":"Cambazola \\ Lovely"}""", obj.asString)
+    assertEquals("""{"label":"Grueyer \\ Funky"}""", obj.asString)
   }
+
+  @Test
+  def jsonObject_ShouldEscapeLineFeeds {
+    val obj = jsonObject() {
+      field("label", Some("Edam \r Bouncy"))
+    }
+    assertEquals("""{"label":"Edam \\r Bouncy"}""", obj.asString)
+  }
+
+  @Test
+  def jsonObject_ShouldEscapeTabs {
+    val obj = jsonObject() {
+      field("label", Some("Munster \t Stinky"))
+    }
+    assertEquals("""{"label":"Munster \\t Stinky"}""", obj.asString)
+  }
+
+  @Test
+  def jsonObject_ShouldEscapeNewLines {
+    val obj = jsonObject() {
+      field("label", Some("Cheddar \n Melty"))
+    }
+    assertEquals("""{"label":"Cheddar \\n Melty"}""", obj.asString)
+  }
+
 }

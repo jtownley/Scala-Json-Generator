@@ -9,14 +9,15 @@
     <property name="src" value="src/main"/>
     <property name="src.test" value="src/test"/>
     <property name="lib" value="lib"/>
+    <property name="scala_version" value="2_8"/>
 
     <path id="library.junit.classpath">
         <pathelement location="${basedir}/lib/junit-4.7.jar"/>
     </path>
 
     <path id="library.lib.classpath">
-        <pathelement location="${basedir}/lib/scala-compiler.jar"/>
-        <pathelement location="${basedir}/lib/scala-library.jar"/>
+        <pathelement location="${basedir}/lib/scala-compiler${scala_version}.jar"/>
+        <pathelement location="${basedir}/lib/scala-library${scala_version}.jar"/>
     </path>
 
     <taskdef name="scalac" classname="scala.tools.ant.Scalac" classpathref="library.lib.classpath"/>
@@ -81,7 +82,7 @@
     </target>
 
     <target name="deploy" depends="test">
-        <jar basedir="${output.dir}" destfile="scala-json-generator.jar" includes="**/*.class"/>
+        <jar basedir="${output.dir}" destfile="JsonGenerator-0.5.1.jar" includes="**/*.class"/>
     </target>
 
     <target name="clean" description="cleanup module">

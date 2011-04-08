@@ -141,6 +141,14 @@ class JsonGeneratorTest {
   }
 
   @Test
+  def jsonObject_ShouldReturnFieldWithNullValue {
+    val obj = jsonObject() {
+      field("label", Some(null))
+    }
+    assertEquals("""{"label":null}""", obj.asString)
+  }
+
+  @Test
   def jsonObject_ShouldHandleBooleans {
     val obj = jsonObject() {
       field("label", Some(true))

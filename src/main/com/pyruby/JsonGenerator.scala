@@ -27,29 +27,33 @@ object JsonGenerator {
     } else if (self.get != null) {
       val content = if (label.isDefined) "\"" + label.get + "\":" else ""
       val container = self.get
-      val data = value.get match {
-        case v : Int => v.toString
-        case v : Double => v.toString
-        case v : Long => v.toString
-        case v : Boolean => v.toString
-        case v : Date => "\"" + new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(v)+ "\""
-        case v : Any => {
-          val buff = new StringBuilder("\"")
-          for (c <- v.toString.toCharArray) {
-            buff.append(c match {
-              case c: Char if c == '\\' => "\\\\"
-              case c: Char if c == '"' => "\\\""
-              case c: Char if (c.toInt > 31) => c.toString
-              case c: Char if (c == '\n') => "\\\\n"
-              case c: Char if (c == '\t') => "\\\\t"
-              case c: Char if (c == '\r') => "\\\\r"
-              case c: Char if (c == '\b') => "\\\\b"
-              case c: Char if (c == '\f') => "\\\\f"
-            })
 
+      var data:String = null
+      if(value.get != null) {
+        data = value.get match {
+          case v : Int => v.toString
+          case v : Double => v.toString
+          case v : Long => v.toString
+          case v : Boolean => v.toString
+          case v : Date => "\"" + new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(v)+ "\""
+          case v : Any => {
+            val buff = new StringBuilder("\"")
+            for (c <- v.toString.toCharArray) {
+              buff.append(c match {
+                case c: Char if c == '\\' => "\\\\"
+                case c: Char if c == '"' => "\\\""
+                case c: Char if (c.toInt > 31) => c.toString
+                case c: Char if (c == '\n') => "\\\\n"
+                case c: Char if (c == '\t') => "\\\\t"
+                case c: Char if (c == '\r') => "\\\\r"
+                case c: Char if (c == '\b') => "\\\\b"
+                case c: Char if (c == '\f') => "\\\\f"
+              })
+
+            }
+            buff.append("\"")
+            buff.toString
           }
-          buff.append("\"")
-          buff.toString
         }
       }
       container.details = container.details ::: List(content + data)

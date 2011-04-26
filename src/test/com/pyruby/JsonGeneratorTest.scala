@@ -2,8 +2,8 @@ package com.pyruby
 
 import com.pyruby.JsonGenerator._
 import org.junit.Assert._
-import org.junit.Test
 import java.util.Calendar
+import org.junit.{Before, Test}
 
 /*
 Copyright 2010 - Chris Tarttelin & James Townley
@@ -13,6 +13,46 @@ Version: 0.2
 */
 
 class JsonGeneratorTest {
+  @Before
+  def setup {
+    JsonGenerator.options.OMIT_NONE_FIELDS = true
+  }
+
+  @Test
+  def jsonObject_ShouldReturnFieldWithNullValue_whenOptionSetNoneFieldsNullIsTrue {
+    JsonGenerator.options.OMIT_NONE_FIELDS = false
+    val obj = jsonObject() {
+      field("label", None)
+    }
+    assertEquals("""{"label":null}""", obj.asString)
+  }
+
+  @Test
+  def jsonObject_ShouldMakeArrayNull_WhenValuesNullAndOptionSetNoneFieldsNullIsTrue {
+    JsonGenerator.options.OMIT_NONE_FIELDS = false
+    val obj = jsonObject() {
+      field("label", Some("value"))
+      jsonArray("Cheeses") {
+        value(None)
+      }
+    }
+    assertEquals("""{"label":"value","Cheeses":null}""", obj.asString)
+  }
+
+  @Test
+  def jsonObject_ShouldMaintainArray_WhenSomeOfTheValuesNullAndOptionSetNoneFieldsNullIsTrue {
+    JsonGenerator.options.OMIT_NONE_FIELDS = false
+    val obj = jsonObject() {
+      field("label", Some("value"))
+      jsonArray("Cheeses") {
+        value(None)
+        value(Some("Gouda"))
+        value(None)
+      }
+    }
+    assertEquals("""{"label":"value","Cheeses":["Gouda"]}""", obj.asString)
+  }
+
   @Test
   def jsonObject_AnObjectWithASingleFieldOutPutsJson {
     val obj = jsonObject() {

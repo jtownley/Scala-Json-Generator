@@ -11,7 +11,12 @@ Version: 0.2
 */
 
 object JsonGenerator {
+  class Options {
+    var OMIT_NONE_FIELDS = true
+  }
+
   private val self: ThreadLocal[Gen] = new ThreadLocal[Gen]
+  val options = new Options
 
   def jsonObject(name: String)(f: => Unit) = json(Some(name), "{", "}", f)
   def jsonObject()(f: => Unit) = json(None, "{", "}", f)
@@ -22,38 +27,38 @@ object JsonGenerator {
   def value(value: Option[Any]) = content(None, value)
 
   private def content(label: Option[String], value: Option[Any]) = {
-    if (value.isEmpty) {
+    if (value.isEmpty && options.OMIT_NONE_FIELDS) {
       // do nothing
     } else if (self.get != null) {
       val content = if (label.isDefined) "\"" + label.get + "\":" else ""
       val container = self.get
 
       var data:String = null
-      if(value.get != null) {
-        data = value.get match {
-          case v : Int => v.toString
-          case v : Double => v.toString
-          case v : Long => v.toString
-          case v : Boolean => v.toString
-          case v : Date => "\"" + new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(v)+ "\""
-          case v : Any => {
-            val buff = new StringBuilder("\"")
-            for (c <- v.toString.toCharArray) {
-              buff.append(c match {
-                case c: Char if c == '\\' => "\\\\"
-                case c: Char if c == '"' => "\\\""
-                case c: Char if (c.toInt > 31) => c.toString
-                case c: Char if (c == '\n') => "\\\\n"
-                case c: Char if (c == '\t') => "\\\\t"
-                case c: Char if (c == '\r') => "\\\\r"
-                case c: Char if (c == '\b') => "\\\\b"
-                case c: Char if (c == '\f') => "\\\\f"
-              })
+      data = value match {
+        case None => null
+        case Some(null) => null
+        case Some(v : Int) => v.toString
+        case Some(v : Double) => v.toString
+        case Some(v : Long) => v.toString
+        case Some(v : Boolean) => v.toString
+        case Some(v : Date) => "\"" + new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(v)+ "\""
+        case Some(v : Any) => {
+          val buff = new StringBuilder("\"")
+          for (c <- v.toString.toCharArray) {
+            buff.append(c match {
+              case c: Char if c == '\\' => "\\\\"
+              case c: Char if c == '"' => "\\\""
+              case c: Char if (c.toInt > 31) => c.toString
+              case c: Char if (c == '\n') => "\\\\n"
+              case c: Char if (c == '\t') => "\\\\t"
+              case c: Char if (c == '\r') => "\\\\r"
+              case c: Char if (c == '\b') => "\\\\b"
+              case c: Char if (c == '\f') => "\\\\f"
+            })
 
-            }
-            buff.append("\"")
-            buff.toString
           }
+          buff.append("\"")
+          buff.toString
         }
       }
       if (content.isEmpty && data == null){

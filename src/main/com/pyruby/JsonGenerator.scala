@@ -56,7 +56,13 @@ object JsonGenerator {
           }
         }
       }
-      container.details = container.details ::: List(content + data)
+      if (content.isEmpty && data == null){
+        if (container.details == null || container.details.isEmpty) container.details = null
+      }
+      else {
+        if (container.details == null) container.details = List(content + data)
+        else container.details = container.details ::: List(content + data)
+      }
     } else {
       throw new RuntimeException("Cannot have a value outside of a containing object")
     }
@@ -82,9 +88,9 @@ case class Gen(name: Option[String], prefix: String, suffix: String) {
 
   def asString: String = {
     details = details ::: (gens.map(_.asString).filter(_ != null))
-    if (details.isEmpty) {
-      null
-    } else if (name.isDefined) {
+    if (details == null) String.format(""""%s":%s""", name.get, "null")
+    else if (details.isEmpty) null
+    else if (name.isDefined) {
       String.format(""""%s":%s%s%s""", name.get, prefix, details.mkString(","), suffix)
     } else {
       String.format("""%s%s%s""", prefix, details.mkString(","), suffix)

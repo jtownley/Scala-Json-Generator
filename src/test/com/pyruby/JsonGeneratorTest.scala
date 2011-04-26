@@ -149,6 +149,30 @@ class JsonGeneratorTest {
   }
 
   @Test
+  def jsonObject_ShouldMakeArrayNull_WhenValuesNull {
+    val obj = jsonObject() {
+      field("label", Some("value"))
+      jsonArray("Cheeses") {
+        value(Some(null))
+      }
+    }
+    assertEquals("""{"label":"value","Cheeses":null}""", obj.asString)
+  }
+
+  @Test
+  def jsonObject_ShouldMaintainArray_WhenSomeOfTheValuesNull {
+    val obj = jsonObject() {
+      field("label", Some("value"))
+      jsonArray("Cheeses") {
+        value(Some(null))
+        value(Some("Gouda"))
+        value(Some(null))
+      }
+    }
+    assertEquals("""{"label":"value","Cheeses":["Gouda"]}""", obj.asString)
+  }
+
+  @Test
   def jsonObject_ShouldHandleBooleans {
     val obj = jsonObject() {
       field("label", Some(true))

@@ -82,7 +82,7 @@
     </target>
 
     <target name="deploy" depends="test">
-        <jar basedir="${output.dir}" destfile="JsonGenerator-0.5.2.jar" includes="**/*.class"/>
+        <jar basedir="${output.dir}" destfile="JsonGenerator-0.5.3.jar" includes="**/*.class"/>
     </target>
 
     <target name="clean" description="cleanup module">

@@ -9,7 +9,7 @@
     <property name="src" value="src/main"/>
     <property name="src.test" value="src/test"/>
     <property name="lib" value="lib"/>
-    <property name="scala_version" value="2_8"/>
+    <property name="scala_version" value="2_8_1"/>
 
     <path id="library.junit.classpath">
         <pathelement location="${basedir}/lib/junit-4.7.jar"/>

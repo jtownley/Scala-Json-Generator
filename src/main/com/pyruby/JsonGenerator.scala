@@ -4,24 +4,34 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 /*
-Copyright 2010 - Chris Tarttelin & James Townley
+Copyright 2010-2011 - Chris Tarttelin & James Townley
 Release under Apache-BSD style License
 
-Version: 0.2
+Version: 0.6.0
 */
 
 object JsonGenerator {
+
   class Options {
     var OMIT_NONE_FIELDS = true
   }
+
+  // json(None,"{","}",
+  //  json(Some(Cheeses), "[", "]",
+  //    json(None, "{", "}",
+  //      content(Some(name), value))))
 
   private val self: ThreadLocal[Gen] = new ThreadLocal[Gen]
   val options = new Options
 
   def jsonObject(name: String)(f: => Unit) = json(Some(name), "{", "}", f)
+
   def jsonObject()(f: => Unit) = json(None, "{", "}", f)
+
   def jsonArray(name: String)(f: => Unit) = json(Some(name), "[", "]", f)
+
   def jsonArray()(f: => Unit) = json(None, "[", "]", f)
+
   def field(name: String, value: Option[Any]) = content(Some(name), value)
 
   def value(value: Option[Any]) = content(None, value)
@@ -33,16 +43,16 @@ object JsonGenerator {
       val content = if (label.isDefined) "\"" + label.get + "\":" else ""
       val container = self.get
 
-      var data:String = null
+      var data: String = null
       data = value match {
         case None => null
         case Some(null) => null
-        case Some(v : Int) => v.toString
-        case Some(v : Double) => v.toString
-        case Some(v : Long) => v.toString
-        case Some(v : Boolean) => v.toString
-        case Some(v : Date) => "\"" + new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(v)+ "\""
-        case Some(v : Any) => {
+        case Some(v: Int) => v.toString
+        case Some(v: Double) => v.toString
+        case Some(v: Long) => v.toString
+        case Some(v: Boolean) => v.toString
+        case Some(v: Date) => "\"" + new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(v) + "\""
+        case Some(v: Any) => {
           val buff = new StringBuilder("\"")
           for (c <- v.toString.toCharArray) {
             buff.append(c match {
@@ -61,18 +71,20 @@ object JsonGenerator {
           buff.toString
         }
       }
-      if (content.isEmpty && data == null){
-        if (container.details == null || container.details.isEmpty) container.details = null
-      }
-      else {
-        if (container.details == null) container.details = List(content + data)
-        else container.details = container.details ::: List(content + data)
+      (content, container.details, data) match {
+        case ("", List(), null) => container.details = null
+        case (_, null, _) => container.details = List(content + data)
+        case ("", _, null) => {
+          /*Do nothing*/
+        }
+        case _ => container.details = container.details ::: List(content + data)
       }
     } else {
       throw new RuntimeException("Cannot have a value outside of a containing object")
     }
     this
   }
+
 
   private def json(name: Option[String], prefix: String, suffix: String, f: => Unit) = {
     val prior = self.get
@@ -83,9 +95,19 @@ object JsonGenerator {
     f
     val reply = self.get
     self.set(prior)
+    (prior, containsNullDetailValues(reply))match {
+      case (Gen(Some(_),"[","]"),true) => reply.details = null
+      case _ => {}
+    }
     reply
   }
+  
+  private def containsNullDetailValues(reply: Gen) = {
+    if (reply.details == null) false
+    else reply.details.foldLeft(true)((arg,value)=>{arg && value.endsWith(":null")})
+  }
 }
+
 
 case class Gen(name: Option[String], prefix: String, suffix: String) {
   var details = List[String]()
@@ -93,12 +115,13 @@ case class Gen(name: Option[String], prefix: String, suffix: String) {
 
   def asString: String = {
     details = details ::: (gens.map(_.asString).filter(_ != null))
-    if (details == null) String.format(""""%s":%s""", name.get, "null")
-    else if (details.isEmpty) null
-    else if (name.isDefined) {
-      String.format(""""%s":%s%s%s""", name.get, prefix, details.mkString(","), suffix)
-    } else {
-      String.format("""%s%s%s""", prefix, details.mkString(","), suffix)
+    (details,name) match {
+      case (null,None) => ""
+      case (null,Some(name)) => String.format(""""%s":%s""", name, "null")
+      case (List(),_) => null
+      case (l,Some(name)) if l.mkString.isEmpty => String.format(""""%s":%s""", name, "null")
+      case (d ,Some(name)) => String.format(""""%s":%s%s%s""", name, prefix, d.filter(!_.isEmpty).mkString(","), suffix)
+      case (d,None) => String.format("""%s%s%s""", prefix, d.mkString(","), suffix)
     }
   }
 }

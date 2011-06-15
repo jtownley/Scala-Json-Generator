@@ -1,7 +1,7 @@
-Copyright 2010 - Chris Tarttelin & James Townley
+Copyright 2010-2011 - Chris Tarttelin & James Townley
 Release under Apache-BSD style License
 
-Version: 0.2
+Version: 0.6.0
 
 ----------------------------------
 Description
@@ -52,3 +52,6 @@ Version 0.5.x -
 - Added a build.xml.  To build, you will need to include the appropriate scala-compiler.jar and scala-library.jar and amend the classpath in the ant file accordingly.
 - Fixed bug with null array values being treated as "null" strings
 - Added option for None values to produce same effect as Some(null)
+
+Version 0.6.0
+- Fixed bug where an empty jsonObject in a jsonArray is not return Array:null when OMIT_NONE_FIELDS = false

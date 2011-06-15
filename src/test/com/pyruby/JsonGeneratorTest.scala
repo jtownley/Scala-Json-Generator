@@ -6,51 +6,16 @@ import java.util.Calendar
 import org.junit.{Before, Test}
 
 /*
-Copyright 2010 - Chris Tarttelin & James Townley
+Copyright 2010-2011 - Chris Tarttelin & James Townley
 Release under Apache-BSD style License
 
-Version: 0.2
+Version: 0.6.0
 */
 
 class JsonGeneratorTest {
   @Before
   def setup {
     JsonGenerator.options.OMIT_NONE_FIELDS = true
-  }
-
-  @Test
-  def jsonObject_ShouldReturnFieldWithNullValue_whenOptionSetNoneFieldsNullIsTrue {
-    JsonGenerator.options.OMIT_NONE_FIELDS = false
-    val obj = jsonObject() {
-      field("label", None)
-    }
-    assertEquals("""{"label":null}""", obj.asString)
-  }
-
-  @Test
-  def jsonObject_ShouldMakeArrayNull_WhenValuesNullAndOptionSetNoneFieldsNullIsTrue {
-    JsonGenerator.options.OMIT_NONE_FIELDS = false
-    val obj = jsonObject() {
-      field("label", Some("value"))
-      jsonArray("Cheeses") {
-        value(None)
-      }
-    }
-    assertEquals("""{"label":"value","Cheeses":null}""", obj.asString)
-  }
-
-  @Test
-  def jsonObject_ShouldMaintainArray_WhenSomeOfTheValuesNullAndOptionSetNoneFieldsNullIsTrue {
-    JsonGenerator.options.OMIT_NONE_FIELDS = false
-    val obj = jsonObject() {
-      field("label", Some("value"))
-      jsonArray("Cheeses") {
-        value(None)
-        value(Some("Gouda"))
-        value(None)
-      }
-    }
-    assertEquals("""{"label":"value","Cheeses":["Gouda"]}""", obj.asString)
   }
 
   @Test
@@ -283,4 +248,91 @@ class JsonGeneratorTest {
     assertEquals("""{"label":"Cheddar \\n Melty"}""", obj.asString)
   }
 
+  @Test
+  def jsonObject_ShouldReturnFieldWithNullValue_whenOmitNoneFieldsFalse {
+    JsonGenerator.options.OMIT_NONE_FIELDS = false
+    val obj = jsonObject() {
+      field("label", None)
+    }
+    assertEquals("""{"label":null}""", obj.asString)
+  }
+
+  @Test
+  def jsonObject_ShouldMakeArrayNull_WhenValuesNullAndOmitNoneFieldsFalse {
+    JsonGenerator.options.OMIT_NONE_FIELDS = false
+    val obj = jsonObject() {
+      field("label", Some("value"))
+      jsonArray("Cheeses") {
+        value(None)
+      }
+    }
+    assertEquals("""{"label":"value","Cheeses":null}""", obj.asString)
+  }
+
+  @Test
+  def jsonObject_ShouldMaintainArray_WhenSomeOfTheValuesNullAndOmitNoneFieldsFalse {
+    JsonGenerator.options.OMIT_NONE_FIELDS = false
+    val obj = jsonObject() {
+      field("label", Some("value"))
+      jsonArray("Cheeses") {
+        value(None)
+        value(Some("Gouda"))
+        value(None)
+      }
+    }
+    assertEquals("""{"label":"value","Cheeses":["Gouda"]}""", obj.asString)
+  }
+
+  @Test
+  def jsonObject_ShouldNotMaintainArray_WhenAllOfTheObjectsValuesNullInListAndOmitNoneFieldsFalse {
+    JsonGenerator.options.OMIT_NONE_FIELDS = false
+    val obj = jsonObject() {
+      field("label", Some("value"))
+      jsonArray("Cheeses") {
+        jsonObject() {
+          field("smell", None)
+          field("texture", None)
+        }
+      }
+    }
+    assertEquals("""{"label":"value","Cheeses":null}""", obj.asString)
+  }
+  
+  @Test
+  def jsonObject_ShouldNotMaintainArray_WhenSomeOfTheObjectsValuesNullInListAndOmitNoneFieldsFalse {
+    JsonGenerator.options.OMIT_NONE_FIELDS = false
+    val obj = jsonObject() {
+      field("label", Some("value"))
+      jsonArray("Cheeses") {
+        jsonObject() {
+          field("smell", None)
+          field("texture", Some("Firm(in parts)"))
+        }
+        jsonObject() {
+          field("smell", None)
+          field("texture", None)
+        }
+      }
+    }
+    assertEquals("""{"label":"value","Cheeses":[{"smell":null,"texture":"Firm(in parts)"}]}""", obj.asString)
+  }
+
+  @Test
+  def jsonObject_ShouldNotMaintainArray_WhenGroupsOfTheObjectsValuesNullInListAndOmitNoneFieldsFalse {
+    JsonGenerator.options.OMIT_NONE_FIELDS = false
+    val obj = jsonObject() {
+      field("label", Some("value"))
+      jsonArray("Cheeses") {
+        jsonObject() {
+          field("smell", None)
+          field("texture", None)
+        }
+        jsonObject() {
+          field("smell", None)
+          field("texture", None)
+        }
+      }
+    }
+    assertEquals("""{"label":"value","Cheeses":null}""", obj.asString)
+  }
 }

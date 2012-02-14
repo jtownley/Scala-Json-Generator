@@ -4,10 +4,10 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 /*
-Copyright 2010-2011 - Chris Tarttelin & James Townley
+Copyright 2010-2012 - Chris Tarttelin & James Townley
 Release under Apache-BSD style License
 
-Version: 0.6.0
+Version: 0.7.0
 */
 
 object JsonGenerator {
@@ -35,6 +35,14 @@ object JsonGenerator {
   def field(name: String, value: Option[Any]) = content(Some(name), value)
 
   def value(value: Option[Any]) = content(None, value)
+
+  def rawJson(value: Option[String]) = {
+    val container = self.get
+    value match {
+      case None => container.details = container.details
+      case Some(str) => container.details = container.details ::: List(str)
+    }
+  }
 
   private def content(label: Option[String], value: Option[Any]) = {
     if (value.isEmpty && options.OMIT_NONE_FIELDS) {

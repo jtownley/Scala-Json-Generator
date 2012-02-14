@@ -6,10 +6,10 @@ import java.util.Calendar
 import org.junit.{Before, Test}
 
 /*
-Copyright 2010-2011 - Chris Tarttelin & James Townley
+Copyright 2010-2012 - Chris Tarttelin & James Townley
 Release under Apache-BSD style License
 
-Version: 0.6.0
+Version: 0.7.0
 */
 
 class JsonGeneratorTest {
@@ -214,6 +214,39 @@ class JsonGeneratorTest {
       field("label", Some(new Foo))
     }
     assertEquals("""{"label":"Cambazola \" is \" lovely"}""", obj.asString)
+  }
+
+  @Test
+   def rawJson_ShouldNotChangeExistingJsonObject_whenGivenEmpty {
+    val obj = jsonObject() {
+          field("label1",Some("content1"))
+          rawJson(None)
+        }
+    assertEquals("""{"label1":"content1"}""", obj.asString)
+  }
+
+
+  @Test
+  def rawJson_ShouldInsertRawJsonInsideAnEmptyJsonObject {
+    val testJson = Some(""""testLabel":"testContent"""")
+    val obj = jsonObject() {
+      rawJson(testJson)
+    }
+    assertEquals("""{"testLabel":"testContent"}""", obj.asString)
+  }
+
+  @Test
+  def rawJson_ShouldInsertRawJsonInsideExistingJsonOnject{
+     class Foo {
+      override def toString = """Cambazola " is " lovely"""
+    }
+    val testJson = Some(""""testObject":{"testLabel":"testContent"}""")
+    val obj = jsonObject() {
+      field("label", Some(new Foo))
+      rawJson(testJson)
+      field("label2", Some(new Foo))
+    }
+   assertEquals("""{"label":"Cambazola \" is \" lovely","testObject":{"testLabel":"testContent"},"label2":"Cambazola \" is \" lovely"}""", obj.asString)
   }
 
   @Test

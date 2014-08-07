@@ -103,7 +103,7 @@ object JsonGenerator {
     f
     val reply = self.get
     self.set(prior)
-    (prior, containsNullDetailValues(reply))match {
+    (prior, containsNullDetailValues(reply) && reply.gens.size == 0) match {
       case (Gen(Some(_),"[","]"),true) => reply.details = null
       case _ => {}
     }

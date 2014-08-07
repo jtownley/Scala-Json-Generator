@@ -1,7 +1,7 @@
 Copyright 2010-2011 - Chris Tarttelin & James Townley
 Release under Apache-BSD style License
 
-Version: 0.6.0
+Version: 0.7.0
 
 ----------------------------------
 Description
@@ -55,3 +55,6 @@ Version 0.5.x -
 
 Version 0.6.0
 - Fixed bug where an empty jsonObject in a jsonArray is not return Array:null when OMIT_NONE_FIELDS = false
+
+Version 0.7.0
+- Fixed bug that caused a NullPointerException when serializing a jsonArray containing a jsonObject containing only other jsonObjects

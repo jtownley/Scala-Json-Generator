@@ -135,6 +135,21 @@ class JsonGeneratorTest {
   }
 
   @Test
+  def jsonObject_ShouldNotCollapseNonEmptyObjectsInArray {
+    val obj = jsonObject() {
+      jsonArray("Cheeses") {
+        jsonObject() {
+          jsonObject("cheese") {
+            field("name", Some("Munster"))
+            field("age", Some(5))
+          }
+        }
+      }
+    }
+    assertEquals("""{"Cheeses":[{"cheese":{"name":"Munster","age":5}}]}""", obj.asString)
+  }
+
+  @Test
   def jsonObject_ShouldReturnNullIfAllEmpty {
     val obj = jsonObject() {
       field("label", None)
